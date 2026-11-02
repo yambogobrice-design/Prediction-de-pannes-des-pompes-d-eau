@@ -1,0 +1,14 @@
+data:
+  raw_dir: data/raw
+  interim_dir: data/interim
+  processed_dir: data/processed
+  train_values: train_values.csv
+  train_labels: train_labels.csv
+  test_values: test_values.csv
+  submission_format: submission_format.csv
+
+model:
+  seed: 42
+  test_size: 0.2
+  val_size: 0.25
+  target: status_group
