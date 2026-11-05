@@ -2,34 +2,33 @@
 
 IIAA752, Projet IA. Classification à 3 classes (fonctionnel, à réparer, hors service) sur les données *Pump it Up* (Tanzanie).
 
-## Installation
+## Démarrage rapide
+
+Python 3.11 ou plus récent. Sous Windows, depuis la racine du projet :
 
 ```bash
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
+python src/predict.py --exemple data/exemple.json
 ```
+
+Réponse attendue : hors service, probabilité 0,998.
+
+Le modèle est dans le dépôt : ni les données ni les notebooks ne sont nécessaires pour cette commande.
 
 ## Données
 
 Les données brutes ne sont pas dans Git. Voir `data/README.md` : il faut copier les deux CSV dans `data/raw/`.
 
-## Reproduire
+## Refaire l'entraînement
 
-Ouvrir chaque notebook avec le Python du `.venv`, puis exécuter toutes les cellules, dans cet ordre :
+Il faut les données ci-dessus. Ouvrir chaque notebook avec le Python du `.venv`, puis exécuter toutes les cellules, dans cet ordre :
 
 1. `notebooks/02_livrable2_donnees.ipynb` : nettoyage et découpage dans `data/livrable2/`.
 2. `notebooks/03_livrable3_baseline.ipynb` : baselines, journal `experiments.csv`, modèles dans `outputs/livrable3/`, analyse de 10 erreurs.
 
-## Prédire l'état d'un point d'eau
-
-Depuis la racine du projet, après avoir exécuté le notebook 03 :
-
-```bash
-python src/predict.py --exemple data/exemple.json
-```
-
-Réponse attendue : hors service, probabilité 0,998.
+Le notebook 03 réécrit le modèle dans `outputs/livrable3/`.
 
 ## Résultats attendus (validation)
 
@@ -47,7 +46,7 @@ notebooks/   exploration et baselines
 src/         predict.py (prédiction sur un exemple)
 app/         prototype (à venir)
 docs/        note de cadrage, fiche de données
-outputs/     modèles entraînés (non versionnés)
+outputs/     livrable3/arbre_10var.joblib (le modèle de predict.py) ; le reste n'est pas versionné
 experiments.csv   journal : une ligne par essai
 ```
 

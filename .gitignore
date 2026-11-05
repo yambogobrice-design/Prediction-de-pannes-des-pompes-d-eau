@@ -5,9 +5,12 @@ data/livrable2/val.csv
 data/livrable2/test.csv
 
 # Sorties générées
-outputs/
 *.joblib
 *.pkl
+outputs/*
+!outputs/livrable3/
+outputs/livrable3/*
+!outputs/livrable3/arbre_10var.joblib
 
 # Python
 .venv/
