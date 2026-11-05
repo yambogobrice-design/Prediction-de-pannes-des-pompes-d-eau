@@ -1,83 +1,57 @@
-# Prediction de pannes des pompes d'eau
+# Sujet 1 : quels points d'eau sont en panne ?
 
-Prédiction de l'état fonctionnel des points d'eau en Tanzanie à partir du
-dataset **« Pump it Up: Data Mining the Water Table »** (compétition
-[DrivenData](https://www.drivendata.org/competitions/7/pump-it-up-data-mining-the-water-table/)).
-
-Objectif : classer chaque point d'eau parmi trois classes —
-`functional`, `functional needs repair`, `non functional`.
-
-## Structure du projet
-
-```
-├── README.md
-├── requirements.txt           # dépendances runtime
-├── requirements-dev.txt       # + outils de dev (pytest, jupyter)
-├── Makefile                   # raccourcis : make install / test / train
-├── config/
-│   └── config.yaml            # chemins & paramètres centralisés
-├── data/
-│   ├── raw/                   # données brutes (non modifiées, hors Git)
-│   ├── interim/               # données nettoyées / fusionnées
-│   ├── processed/             # matrices finales d'entraînement
-│   ├── splits/                # découpage figé (généré)
-│   └── livrable2/             # sorties du livrable 2 (généré)
-├── notebooks/                 # exploration & expérimentation
-│   ├── 01_exploration_et_decoupage.ipynb
-│   ├── 02_livrable2_donnees.ipynb
-│   ├── 03_livrable3_baseline.ipynb
-│   └── archive/               # versions obsolètes
-├── src/                       # code réutilisable et testable
-│   ├── data/                  #   1. chargement / préparation
-│   ├── features/              #   2. feature engineering
-│   ├── models/                #   3. entraînement / prédiction
-│   └── visualization/         #   4. visualisations
-├── tests/                     # tests unitaires
-├── outputs/                   # modèles, soumissions, métriques (généré)
-├── livrables/                 # rapports, slides, documents
-├── app/
-│   ├── backend/
-│   └── frontend/
-└── .github/workflows/         # intégration continue
-```
+IIAA752, Projet IA. Classification à 3 classes (fonctionnel, à réparer, hors service) sur les données *Pump it Up* (Tanzanie).
 
 ## Installation
 
-```powershell
+```bash
 python -m venv .venv
-.venv\Scripts\Activate.ps1
-pip install -r requirements-dev.txt
+.venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
 ## Données
 
-Les fichiers bruts (CSV) ne sont **pas versionnés** dans Git. Déposer les
-fichiers dans `data/raw/` en respectant les noms du tableau ci-dessous
-(voir `data/raw/README.md`) :
+Les données brutes ne sont pas dans Git. Voir `data/README.md` : il faut copier les deux CSV dans `data/raw/`.
 
-| Nom attendu            | Contenu                              |
-|------------------------|--------------------------------------|
-| `train_values.csv`     | Variables d'entraînement (X)         |
-| `train_labels.csv`     | Étiquettes d'entraînement (y)        |
-| `test_values.csv`      | Variables de test (X_test)           |
-| `submission_format.csv`| Format de soumission attendu         |
+## Reproduire
 
-## Usage
+Ouvrir chaque notebook avec le Python du `.venv`, puis exécuter toutes les cellules, dans cet ordre :
 
-```powershell
-# Entraîner / prédire / tester
-make train
-make predict
-make test
+1. `notebooks/02_livrable2_donnees.ipynb` : nettoyage et découpage dans `data/livrable2/`.
+2. `notebooks/03_livrable3_baseline.ipynb` : baselines, journal `experiments.csv`, modèles dans `outputs/livrable3/`, analyse de 10 erreurs.
 
-# Ou sans make :
-python -m src.models.train_model
-pytest tests
+## Prédire l'état d'un point d'eau
+
+Depuis la racine du projet, après avoir exécuté le notebook 03 :
+
+```bash
+python src/predict.py --exemple data/exemple.json
 ```
 
-## Pipeline
+Réponse attendue : hors service, probabilité 0,998.
 
-1. `src.data.make_dataset` — charge `data/raw`, fige le découpage train/val/test.
-2. `src.features.build_features` — nettoie et construit les features.
-3. `src.models.train_model` — entraîne et évalue les modèles.
-4. `src.models.predict_model` — produit `outputs/submission.csv`.
+## Résultats attendus (validation)
+
+| Modèle | Exactitude | Rappel « à réparer » | F1 macro |
+|---|---|---|---|
+| majoritaire | 0,543 | 0,000 | 0,235 |
+| logistique_10var | 0,732 | 0,037 | 0,519 |
+| arbre_10var | 0,736 | 0,088 | 0,545 |
+
+## Arborescence
+
+```
+data/        README (lien, version), exemple.json, livrable2/split.csv (découpage figé)
+notebooks/   exploration et baselines
+src/         predict.py (prédiction sur un exemple)
+app/         prototype (à venir)
+docs/        note de cadrage, fiche de données
+outputs/     modèles entraînés (non versionnés)
+experiments.csv   journal : une ligne par essai
+```
+
+## Règles
+
+- Graine 42.
+- Le jeu de test n'est utilisé qu'une seule fois, en S5.

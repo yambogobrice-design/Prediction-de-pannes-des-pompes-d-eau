@@ -1,0 +1,143 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[a4paper,top=1.8cm,bottom=1.8cm,left=2cm,right=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{bleu2ie}{RGB}{0,110,160}
+\titleformat{\section}{\normalsize\bfseries\color{bleu2ie}}{\thesection.}{0.5em}{}
+\titlespacing*{\section}{0pt}{6pt}{3pt}
+\setlength{\parindent}{0pt}
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
+\setlength{\parskip}{3pt}
+\renewcommand{\arraystretch}{1.1}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.3pt}
+\fancyhead[L]{\small IIAA}
+\fancyhead[R]{\small Note de cadrage, sujet 1}
+\fancyfoot[C]{\small\thepage}
+
+\begin{document}
+
+% ---------------- Page de garde ----------------
+\begin{titlepage}
+\centering
+\includegraphics[width=4.2cm]{logo_2ie.png}\par
+\vspace{0.6cm}
+{\large Institut International d'Ingénierie de l'Eau et de l'Environnement}\par
+\vspace{0.2cm}
+{\normalsize IIAA}\par
+\vspace{2.8cm}
+{\color{bleu2ie}\rule{0.8\textwidth}{0.6pt}}\par
+\vspace{0.5cm}
+{\LARGE\bfseries Prédiction de pannes des pompes d'eau}\par
+\vspace{0.3cm}
+{\large Note de cadrage, sujet 1}\par
+\vspace{0.4cm}
+{\color{bleu2ie}\rule{0.8\textwidth}{0.6pt}}\par
+\vspace{2.8cm}
+{\large Rédigée par}\par
+\vspace{0.3cm}
+{\large PODA S. R. Jordy\par YAMBOGO Brice}\par
+\vfill
+{\small Dépôt du projet :\par
+\url{https://github.com/yambogobrice-design/Prediction-de-pannes-des-pompes-d-eau}}\par
+\vspace{0.6cm}
+{\normalsize Octobre 2026}
+\end{titlepage}
+
+% ---------------- Sommaire ----------------
+\thispagestyle{fancy}
+\renewcommand{\contentsname}{Sommaire}
+\tableofcontents
+\clearpage
+
+% ---------------- Note (2 pages) ----------------
+\section{Contexte et utilisateur}
+L'accès à l'eau potable en milieu rural sahélien repose en grande partie sur des forages équipés de pompes, souvent manuelles. Or, à un instant donné, une proportion importante de ces ouvrages est hors service ou fonctionne mal. Les services de maintenance disposent de moyens limités en personnel, en véhicules et en temps, et ne peuvent pas inspecter chaque point d'eau régulièrement. En pratique, une panne n'est souvent traitée qu'après avoir été signalée, parfois plusieurs semaines après l'arrêt de la pompe.
+
+Ce projet s'adresse au responsable de la maintenance d'un district, qui doit établir chaque semaine la liste des points d'eau à visiter. Pour l'aider dans ce choix, nous proposons d'estimer l'état de chaque point d'eau à partir de ses seules caractéristiques connues, sans attendre un signalement. C'est dans cette optique que notre système a été pensé : il classe les points d'eau du district du plus risqué au moins risqué et associe à chacun une probabilité de panne. Le responsable conserve la décision finale ; le classement lui sert d'aide pour organiser ses tournées en priorité vers les ouvrages les plus susceptibles d'être défaillants.
+
+\section{Problématique}
+La question posée se formule ainsi : à partir des caractéristiques connues d'un point d'eau, peut-on prédire son état ? Le tableau suivant précise l'entrée, la sortie et la nature de la tâche.
+
+\begin{tabularx}{\textwidth}{@{}p{2.2cm}L@{}}
+\toprule
+Entrée & Caractéristiques du point d'eau : type de pompe, année de construction, source, mode de gestion, mode de paiement, localisation, population desservie. \\
+Sortie & État prédit parmi trois classes (fonctionnel, fonctionnel mais à réparer, hors service), accompagné de sa probabilité. \\
+Tâche & Classification supervisée à trois classes sur des données tabulaires. \\
+\bottomrule
+\end{tabularx}
+
+\section{Données}
+Nous utilisons les données de la compétition Pump it Up publiée par DrivenData. Elles ont été rassemblées par Taarifa et le ministère de l'Eau de Tanzanie, puis relevées sur le terrain par GeoData Consultants Ltd, principalement entre 2011 et 2013. Le jeu étiqueté compte 59\,400 points d'eau décrits par 40 variables, répartis en deux fichiers reliés par un identifiant. Les classes y sont déséquilibrées : 54,3\,\% des points sont fonctionnels, 38,4\,\% hors service et seulement 7,3\,\% à réparer. Le jeu de test officiel de la compétition n'ayant pas d'étiquettes, nous ne l'utilisons pas.
+
+Une première exploration fait ressortir trois difficultés. D'abord, de nombreuses valeurs manquantes sont codées par zéro : c'est le cas d'environ 35\,\% des années de construction, des populations et des altitudes, ainsi que de 1\,812 points dont la longitude vaut 0. Ensuite, certaines variables comptent des milliers de modalités, comme le financeur (1\,896), l'installateur (2\,145) ou le nom du point d'eau (37\,399). Enfin, plusieurs colonnes reprennent la même information sous deux formes, par exemple la quantité d'eau et son regroupement.
+
+\section{Métriques d'évaluation et coût des erreurs}
+Le choix des métriques découle directement de l'usage visé. La métrique officielle de la compétition est l'exactitude (accuracy), c'est-à-dire la proportion de points d'eau correctement classés. Elle permet de nous comparer aux résultats publiés, mais elle ne suffit pas ici : un modèle qui répond toujours « fonctionnel » atteint déjà 54\,\% d'accuracy sans détecter un seul point à réparer.
+
+Nous suivons donc en complément le rappel (recall) de la classe à réparer, qui mesure la part des points réellement à réparer que le modèle parvient à retrouver. La matrice de confusion (confusion matrix) permettra de voir quelles classes sont confondues entre elles, et le F1 score macro (macro F1 score) résumera la performance en donnant le même poids aux trois classes.
+
+Ce choix s'explique par le coût des erreurs pour le responsable de maintenance. Classer comme fonctionnel un point qui est à réparer est l'erreur la plus coûteuse : le point n'est pas visité, la panne s'aggrave, la réparation devient plus chère et la population finit par perdre l'accès à l'eau. À l'inverse, une fausse alerte ne coûte qu'un déplacement inutile. Nous acceptons donc un nombre plus élevé de fausses alertes en échange d'un meilleur rappel sur les pannes.
+
+\section{Modèles de référence et critère de succès}
+Pour juger l'apport d'un modèle, nous partons de deux références (baselines). La première prédit toujours la classe la plus fréquente ; elle donne une accuracy d'environ 0,54 et un rappel nul sur la classe à réparer. La seconde est une régression logistique, puis un arbre de décision, entraînés sur dix variables choisies à la main : quantité d'eau, type de point d'eau, classe d'extraction, paiement, source, qualité de l'eau, gestion, région, âge du point et altitude. Nous comparerons ensuite à ces références au moins deux approches utilisant l'ensemble des variables nettoyées : une forêt aléatoire (random forest) et un gradient boosting.
+
+Nous fixons le critère de succès suivant : sur le jeu de validation, le modèle retenu doit atteindre une accuracy d'au moins 0,75 et un rappel d'au moins 0,40 sur la classe à réparer. Un premier essai exploratoire indique que ce seuil est atteignable sur un portable sans carte graphique, avec un entraînement de quelques secondes.
+
+\section{Protocole d'évaluation}
+Afin que les résultats soient fiables et reproductibles, les données étiquetées sont découpées en trois parts : 70\,\% pour l'apprentissage, 15\,\% pour la validation et 15\,\% pour le test. Le découpage est stratifié selon la classe, de sorte que chaque part conserve environ 7\,\% de points à réparer. Les lignes identiques et les points partageant les mêmes coordonnées sont regroupés au préalable, pour éviter qu'un même point d'eau se retrouve à la fois en apprentissage et en évaluation. La graine aléatoire est fixée à 42 et le découpage est enregistré dans un fichier versionné.
+
+Tous les réglages se font sur la validation, et le test n'est utilisé qu'une seule fois, lors de la séance 5. Chaque essai est consigné dans un journal d'expériences (date, auteur, commit, modèle, scores, observation), et les versions des bibliothèques sont figées dans le fichier requirements.txt.
+
+\section{Risques et parades}
+Les difficultés relevées lors de l'exploration, ainsi que les contraintes du projet, conduisent aux risques suivants.
+
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{6.4cm}L@{}}
+\toprule
+Risque & Parade \\
+\midrule
+Valeurs manquantes codées par zéro ou par \mbox{« unknown »} & Recodage explicite en valeur manquante, règles écrites dans le code de nettoyage. \\
+Variables à milliers de modalités & Conservation des 50 modalités les plus fréquentes, regroupement des autres. \\
+Classe à réparer peu représentée & Suivi de son rappel et pondération des classes à l'entraînement. \\
+Quantité « sèche » associée à 97\,\% de pannes & Vérifier si cette information est connue sans visite ; comparer un modèle avec et sans. \\
+Données tanzaniennes pour un usage au Burkina Faso & Discussion dans le rapport ; aucune garantie de performance hors Tanzanie. \\
+Résultats non reproductibles sur une autre machine & Versions figées, test du clone sur le poste de l'autre membre avant la séance 5. \\
+\bottomrule
+\end{tabularx}
+
+\section{Planning et répartition}
+Chaque membre reste responsable de la compréhension de l'ensemble du projet. La répartition ci-dessous désigne le rédacteur principal de chaque tâche ; l'autre membre relit et relance le travail avant chaque revue.
+
+\begin{tabularx}{\textwidth}{@{}p{1.1cm}>{\raggedright\arraybackslash}p{5.6cm}LL@{}}
+\toprule
+Séance & Livrable & PODA S. R. Jordy & YAMBOGO Brice \\
+\midrule
+S1 & Note de cadrage, dépôt Git & Rédaction de la note & Création et structure du dépôt \\
+S2 & Exploration, nettoyage, découpage figé & Nettoyage, fiche de données & Découpage, contrôle des doublons \\
+S3 & Baselines au journal, schéma de la chaîne & Schéma de la chaîne & Baselines et journal \\
+S4 & Deux modèles, dix erreurs, prototype & Analyse des erreurs & Modèles et prototype \\
+S5 & Code gelé, test du clone, test unique & Test du clone & README et reproductibilité \\
+S6 & Soutenance, rapport & Rapport, première moitié & Rapport, seconde moitié \\
+\bottomrule
+\end{tabularx}
+
+\section{Hors périmètre}
+Certains aspects restent volontairement en dehors du projet. Le système ne prédit pas la date d'une future panne : il estime l'état d'un point au moment du relevé. Il ne planifie pas non plus l'itinéraire des tournées, et ne garantit pas ses performances au Burkina Faso en l'absence de données burkinabè pour le valider. Enfin, le jeu de test officiel de la compétition n'est pas utilisé.
+
+\end{document}

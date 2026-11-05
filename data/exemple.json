@@ -1,0 +1,12 @@
+{
+  "quantity": "dry",
+  "waterpoint_type": "other",
+  "extraction_type_class": "gravity",
+  "payment": "never pay",
+  "source": "spring",
+  "water_quality": "soft",
+  "management_group": "user-group",
+  "region": "kagera",
+  "age": 13.0,
+  "gps_height": 1166.0
+}

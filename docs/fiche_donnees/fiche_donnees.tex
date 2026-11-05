@@ -1,0 +1,136 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[a4paper,top=1.8cm,bottom=1.8cm,left=2cm,right=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{bleu2ie}{RGB}{0,110,160}
+\titleformat{\section}{\normalsize\bfseries\color{bleu2ie}}{\thesection.}{0.5em}{}
+\titlespacing*{\section}{0pt}{6pt}{3pt}
+\setlength{\parindent}{0pt}
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
+\setlength{\parskip}{3pt}
+\renewcommand{\arraystretch}{1.1}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.3pt}
+\fancyhead[L]{\small IIAA}
+\fancyhead[R]{\small Fiche de données, sujet 1}
+\fancyfoot[C]{\small\thepage}
+
+\begin{document}
+
+% ---------------- Page de garde ----------------
+\begin{titlepage}
+\centering
+\includegraphics[width=4.2cm]{logo_2ie.png}\par
+\vspace{0.6cm}
+{\large Institut International d'Ingénierie de l'Eau et de l'Environnement}\par
+\vspace{0.2cm}
+{\normalsize IIAA}\par
+\vspace{2.8cm}
+{\color{bleu2ie}\rule{0.8\textwidth}{0.6pt}}\par
+\vspace{0.5cm}
+{\LARGE\bfseries Prédiction de pannes des pompes d'eau}\par
+\vspace{0.3cm}
+{\large Fiche de données, sujet 1}\par
+\vspace{0.4cm}
+{\color{bleu2ie}\rule{0.8\textwidth}{0.6pt}}\par
+\vspace{2.8cm}
+{\large Rédigée par}\par
+\vspace{0.3cm}
+{\large PODA S. R. Jordy\par YAMBOGO Brice}\par
+\vfill
+{\small Dépôt du projet :\par
+\url{https://github.com/yambogobrice-design/Prediction-de-pannes-des-pompes-d-eau}}\par
+\vspace{0.6cm}
+{\normalsize Novembre 2026}
+\end{titlepage}
+
+% ---------------- Sommaire ----------------
+\thispagestyle{fancy}
+\renewcommand{\contentsname}{Sommaire}
+\tableofcontents
+\clearpage
+
+% ---------------- Fiche (2 pages) ----------------
+\section{Origine des données}
+Les données proviennent de la compétition \emph{Pump it Up: Data Mining the Water Table}, organisée par la plateforme DrivenData. Elles ont été fournies par Taarifa, plateforme de suivi des infrastructures publiques, et par le ministère de l'Eau de Tanzanie.
+
+\begin{tabularx}{\textwidth}{@{}p{2.6cm}L@{}}
+\toprule
+Lien & \url{https://www.drivendata.org/competitions/7/pump-it-up-data-mining-the-water-table/} \\
+Période couverte & Relevés effectués entre 2002 et 2013, dont plus de 99\,\% entre 2011 et 2013. \\
+Obtention & Fichiers fournis sur clé par l'encadrant, identiques à ceux de la compétition. \\
+Licence & Aucune licence libre. Les données relèvent du règlement de la compétition : leur usage est limité à l'apprentissage et à l'analyse, et leur redistribution est interdite. Elles ne sont donc pas publiées dans notre dépôt Git. \\
+\bottomrule
+\end{tabularx}
+
+\section{Accès aux données}
+Le dépôt contient le code mais pas les données. Pour reproduire nos résultats, il faut récupérer le code, installer les bibliothèques, puis placer les fichiers de données dans le dossier prévu.
+
+\smallskip
+\begin{tabularx}{\textwidth}{@{}p{5.2cm}L@{}}
+\toprule
+Étape & Commande ou action \\
+\midrule
+Récupérer le code & \texttt{git clone https://github.com/yambogobrice-design/\allowbreak Prediction-de-pannes-des-pompes-d-eau.git} \\
+Installer les bibliothèques & \texttt{pip install -r requirements.txt} \\
+Obtenir les données & Créer un compte gratuit sur DrivenData, accepter le règlement et télécharger les fichiers de l'onglet Data, ou utiliser la clé fournie. \\
+Placer les données & Copier les deux fichiers étiquetés, sans les renommer ni les modifier, dans le dossier \texttt{data} (exclu de Git). \\
+Vérifier la version & Comparer les empreintes MD5 : variables \texttt{7f81583401fcd17fd588208179f22441}, étiquettes \texttt{743edfcd5364347eae58377a8788d54d}. \\
+Préparer les données & Exécuter le notebook \texttt{02\_livrable2\_donnees}, qui produit le découpage figé. \\
+\bottomrule
+\end{tabularx}
+
+\section{Description des données}
+Les données décrivent des points d'eau ruraux de Tanzanie : forages, pompes à main, bornes fontaines et captages de sources. Elles ne proviennent pas de capteurs : il s'agit d'un recensement de terrain, au cours duquel des enquêteurs ont visité chaque point, décrit ses caractéristiques et noté son état. La colonne qui indique l'auteur du relevé ne contient qu'une seule valeur, le bureau d'études GeoData Consultants Ltd.
+
+Le jeu étiqueté se compose de deux fichiers reliés par un identifiant. Le premier contient 59\,400 points d'eau décrits par 39 variables : localisation (région, district, coordonnées, altitude), caractéristiques techniques (type d'extraction, source, type de point d'eau, année de construction), gestion (gestionnaire, mode de paiement, financeur, installateur) et usage (population desservie, quantité et qualité de l'eau). Le second contient l'état de chaque point, qui est la variable à prédire. Un troisième fichier de 14\,850 points sans état sert au classement de la compétition ; nous ne l'utilisons pas.
+
+La répartition des états est déséquilibrée : 54,3\,\% des points sont fonctionnels, 38,4\,\% hors service et 7,3\,\% fonctionnels mais à réparer. La couverture géographique est également inégale, de 5\,294 points pour la région d'Iringa à 805 pour celle de Dar es Salaam.
+
+\section{Qualité des données}
+L'exploration a révélé plusieurs lacunes. Le tableau suivant indique, pour chacune, son ampleur, le traitement retenu et la raison de ce choix.
+
+\smallskip
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}p{3.4cm}L@{}}
+\toprule
+Lacune & Ampleur & Traitement & Raison \\
+\midrule
+Zéros signifiant «~inconnu~» & Année de construction 34,9\,\%, population 36,0\,\%, altitude 34,4\,\%, 1\,812 points sans coordonnées & Recodés en valeurs manquantes & Une année 0 ou une longitude 0 sont impossibles ; laissées telles quelles, elles fausseraient le modèle. \\
+Textes signifiant «~inconnu~» & «~unknown~», «~0~» ou «~-~» : 8\,157 modes de paiement, 781 installateurs & Recodés en valeurs manquantes & Même raison : ce ne sont pas de vraies modalités. \\
+Écritures différentes d'un même nom & 2\,145 installateurs, 1\,935 après passage en minuscules & Mise en minuscules & Un même installateur ne doit compter qu'une fois. \\
+Manquants catégoriels & Jusqu'à 6,5\,\% selon la variable & Modalité «~inconnu~» & Aucune ligne n'est perdue, et l'absence d'information peut être instructive : 71\,\% des points de quantité inconnue sont hors service. \\
+Manquants numériques & Environ 35\,\% pour l'âge, l'altitude et la population & Médiane du jeu d'apprentissage & La médiane résiste aux valeurs extrêmes ; la calculer sur l'apprentissage seul évite d'utiliser la validation et le test. \\
+Doublons et dates incohérentes & 36 lignes en double, 9 constructions postérieures au relevé & Lignes supprimées, âges retirés & Une pompe comptée deux fois pèserait double ; un âge négatif n'a pas de sens. \\
+Colonnes inutiles & Une colonne constante, une presque toujours nulle, 6 colonnes en double, 3 à plusieurs milliers de modalités & Supprimées & Elles n'apportent aucune information ou répètent une autre colonne. \\
+\bottomrule
+\end{tabularx}
+
+\smallskip
+Ces lacunes ont un effet direct sur le modèle. Un tiers des âges étant remplacé par une même valeur, la médiane de 13 ans, le modèle distingue moins bien les points anciens des points récents. La modalité «~inconnu~» peut, à l'inverse, devenir un indice fort : le modèle risque alors d'apprendre une particularité de la collecte plutôt qu'une cause réelle de panne. Enfin, la rareté de la classe à réparer pousse le modèle à l'ignorer, ce qui justifie le suivi de son rappel.
+
+\section{Biais des données}
+Le premier biais est géographique. Les données sont exclusivement tanzaniennes, alors que l'usage visé concerne le Burkina Faso. Les régions, les districts et les financeurs n'y ont aucun équivalent, et les types de pompes comme les modes de gestion peuvent différer. Même en Tanzanie, la part de points hors service varie de 19\,\% à Iringa à 64\,\% à Lindi : un modèle entraîné sur l'ensemble du pays reflète surtout les régions les plus représentées.
+
+Le deuxième biais est temporel. Les données décrivent l'état des points au moment du relevé, entre 2011 et 2013. Elles ne disent rien des réparations effectuées depuis ni de l'évolution du parc.
+
+Le troisième biais tient à la collecte et à l'étiquetage. Un seul prestataire a relevé les données, saisies à la main, ce qui explique les fautes d'écriture et les faux manquants. La limite entre «~fonctionnel~» et «~à réparer~» dépend du jugement de l'enquêteur. Seuls les points recensés figurent dans les données ; les points oubliés ou inaccessibles en sont absents.
+
+Enfin, certaines variables ne sont connues qu'après une visite. C'est le cas de la quantité d'eau : un point «~sec~» est hors service dans 97\,\% des cas. Si cette information n'est pas disponible avant la tournée, le modèle paraîtra plus performant qu'il ne le sera en conditions réelles. Ce point sera vérifié lors de la comparaison des modèles.
+
+\end{document}

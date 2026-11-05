@@ -1,41 +1,33 @@
-# --- Données (trop lourdes pour Git ; voir data/raw/README.md) ---
-data/raw/*.csv
-data/interim/
-data/processed/
-data/livrable2/
-data/splits/
-data/external/*
+# Données lourdes
+data/raw/
+data/livrable2/train.csv
+data/livrable2/val.csv
+data/livrable2/test.csv
 
-# --- Sorties générées ---
+# Sorties générées
 outputs/
-experiments.csv
-*.parquet
-*.pkl
 *.joblib
-*.onnx
+*.pkl
 
-# --- Python ---
-__pycache__/
-*.py[cod]
-*$py.class
-*.egg-info/
-.eggs/
-build/
-dist/
+# Python
 .venv/
 venv/
-env/
-ENV/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
+__pycache__/
+*.py[cod]
 
-# --- Jupyter ---
+# Jupyter
 .ipynb_checkpoints/
 
-# --- OS / IDE ---
+# LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+
+# Système et éditeurs
 .DS_Store
 Thumbs.db
 Desktop.ini
